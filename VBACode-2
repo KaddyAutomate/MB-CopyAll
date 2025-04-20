@@ -1,0 +1,110 @@
+# MB File:  Purpose: To grab a summary of MB Worksheet for Recon of Concentration,  IF - Medical = Key Capture Deposit,  Else Single ACH, BETA, Create Sheet 1 First
+
+Sub MBTotal()
+
+Dim ws As Worksheet
+Dim K As Worksheet
+y = 10
+x = 1
+
+Set K = ThisWorkbook.Sheets("Sheet1")
+
+K.Range("A1:T9999").ClearContents
+K.Range("A1:T9999").Interior.ColorIndex = 0
+
+
+K.Cells(9, 1) = "Sheet Name"
+K.Cells(9, 2) = "Date"
+K.Cells(9, 3) = "Amount"
+K.Cells(9, 4) = "Description"
+
+Range("A9:F9").Select
+Selection.Font.Bold = True
+Selection.Interior.ColorIndex = 7
+
+
+
+For Each ws In ThisWorkbook.Sheets
+
+If ws.Name Like "*Medical*" Then
+
+K.Cells(y, x) = ws.Name
+    K.Cells(y, x).Interior.ColorIndex = 4
+x = x + 1
+K.Cells(y, x) = ws.Range("B3")
+x = x + 1
+
+K.Cells(y, x) = ws.Application.VLookup("TOTAL (automatic)", ws.Range("A1:C90"), 3, False)
+x = x + 1
+
+K.Cells(y, x) = "Key Capture Deposit"
+    K.Cells(y, x).Interior.ColorIndex = 4
+x = x - 3
+y = y + 1
+
+Else
+K.Cells(y, x) = ws.Name
+    K.Cells(y, x).Interior.ColorIndex = 16
+x = x + 1
+K.Cells(y, x) = ws.Range("B3")
+x = x + 1
+
+K.Cells(y, x) = ws.Application.VLookup("TOTAL (automatic)", ws.Range("A1:C90"), 3, False)
+x = x + 1
+
+K.Cells(y, x) = "Single Lined ACH Total"
+    K.Cells(y, x).Interior.ColorIndex = 45
+x = x - 3
+y = y + 1
+
+S = 10
+P = 10
+
+LastRow = ws.Cells(Rows.Count, 1).End(xlUp).End(xlUp).Row - 9
+For B = 1 To LastRow
+
+K.Cells(y, x) = ws.Name
+    K.Cells(y, x).Interior.ColorIndex = 15
+x = x + 1
+K.Cells(y, x) = ws.Range("B3")
+x = x + 1
+
+K.Cells(y, x) = ws.Cells(S, 3)
+x = x + 1
+K.Cells(y, x) = ws.Cells(P, 1)
+x = x + 1
+K.Cells(y, x) = ws.Cells(P, 1) & ", " & ws.Cells(S, 7)
+
+x = x - 4
+y = y + 1
+S = S + 1
+P = P + 1
+
+Next
+
+End If
+
+Next ws
+
+    Columns("B:B").Select
+    Selection.NumberFormat = "m/d/yyyy"
+    Columns("C:C").Select
+    Selection.Style = "Comma"
+
+    Range("A12:J231").Select
+    ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Add Key:=Range("A12:A231" _
+        ), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("Sheet1").Sort
+        .SetRange Range("A12:J231")
+        .Header = xlGuess
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+
+
+
+
+End Sub
